@@ -14,7 +14,7 @@ import (
 )
 
 var domainsToAddresses map[string]string = map[string]string{
-	"google.com.":       "1.2.3.4",
+	"google.com.": "1.2.3.4",
 }
 
 type handler struct{}
@@ -27,11 +27,15 @@ func (this *handler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 		msg.Authoritative = true
 		domain := msg.Question[0].Name
 		address, ok := domainsToAddresses[domain]
+		// 如果本地存在
 		if ok {
 			msg.Answer = append(msg.Answer, &dns.A{
 				Hdr: dns.RR_Header{Name: domain, Rrtype: dns.TypeA, Class: dns.ClassINET, Ttl: 60},
 				A:   net.ParseIP(address),
 			})
+		} else {
+			// 如果不存在 先上级查询
+
 		}
 	}
 	w.WriteMsg(&msg)
@@ -67,4 +71,4 @@ google.com.		60	IN	A	1.2.3.4
 ;; SERVER: 127.0.0.1#53(127.0.0.1)
 ;; WHEN: Fri Oct 25 11:14:03 CST 2019
 ;; MSG SIZE  rcvd: 54
- */
+*/
